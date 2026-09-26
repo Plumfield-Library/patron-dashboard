@@ -1,0 +1,19 @@
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+
+import { ThemeProvider } from "@/components/theme-provider.tsx"
+import App from "./App.tsx"
+import { AuthProvider } from "./context/AuthContext.tsx"
+import "./index.css"
+import { Toaster } from "@/components/ui/toast.tsx"
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <ThemeProvider>
+      <AuthProvider>
+        <App />
+        <Toaster />
+      </AuthProvider>
+    </ThemeProvider>
+  </StrictMode>
+)
