@@ -1,14 +1,19 @@
 {
-	"files": [],
-	"references": [
-		{ "path": "./tsconfig.app.json" },
-		{ "path": "./tsconfig.node.json" },
-		{ "path": "./tsconfig.worker.json" }
-	],
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/react-app/*"]
-		}
-	}
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.worker.json" }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/react-app/*"]
+    },
+    "esModuleInterop": true,
+    "target": "ES2020",
+    "moduleResolution": "nodenext",
+    "module": "nodenext"
+  },
+  "include": ["enviroment.d.ts"]
 }

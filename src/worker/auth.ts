@@ -1,12 +1,44 @@
-import { Hono } from "hono";
-import { sign, verify } from "hono/jwt";
-import { Bindings } from "./types.ts";
-import { WorkerMailer } from "worker-mailer";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { setCookie } from "hono/cookie";
+import { sign, verify } from "hono/jwt";
+import { WorkerMailer } from "worker-mailer";
+import {
+  Bindings,
+  ErrorSchema,
+  GoodRequestSchema,
+  RequestSchema,
+  VerifyQuerySchema,
+} from "../types";
+import { Database } from "./db.ts";
 
-export const auth = new Hono<{ Bindings: Bindings }>();
+export const auth = new OpenAPIHono<{ Bindings: Bindings }>();
 
-auth.post("/request-link", async (c) => {
+const requestLink = createRoute({
+  method: "post",
+  path: "/request-link",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RequestSchema,
+        },
+      },
+      required: true,
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: GoodRequestSchema,
+        },
+      },
+      description: "Request Received",
+    },
+  },
+});
+
+auth.openapi(requestLink, async (c) => {
   const { email } = await c.req.json();
   console.log("Login request for the following!");
   console.log(email);
@@ -29,11 +61,13 @@ auth.post("/request-link", async (c) => {
     {
       // WorkerMailerOptions
       host: c.env.SMTP_HOST,
-      port: 587,
       credentials: {
         username: c.env.SMTP_USER,
         password: c.env.SMTP_PASS,
       },
+      port: 465,
+      secure: true,
+      authType: "plain",
     },
     {
       from: "plumfieldlivinglibrary@gmail.com",
@@ -45,17 +79,55 @@ auth.post("/request-link", async (c) => {
         ${link}`,
     },
   );
-  return c.json({ ok: true });
+  return c.json({ ok: true }, 200);
 });
 
-auth.get("/verify", async (c) => {
+const VerifyToken = createRoute({
+  method: "get",
+  path: "/verify",
+  request: {
+    query: VerifyQuerySchema,
+  },
+  responses: {
+    400: {
+      description: "Missing token",
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+    },
+    401: {
+      description: "Invalid or expired token",
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+    },
+    301: {
+      description: "Redirects to the dashboard",
+      headers: {
+        Location: {
+          schema: {
+            type: "string",
+          },
+          description: "The target URL to redirect to",
+        },
+      },
+    },
+  },
+});
+
+auth.openapi(VerifyToken, async (c) => {
   const token = c.req.query("token");
   if (!token) return c.json({ error: "missing token" }, 400);
 
   let payload;
   try {
     payload = await verify(token, c.env.JWT_TOKEN);
-  } catch {
+  } catch (e) {
+    console.log(e);
     return c.json({ error: "invalid or expired link" }, 401);
   }
 
@@ -63,23 +135,28 @@ auth.get("/verify", async (c) => {
     return c.json({ error: "invalid token" }, 401);
   }
 
+  const database = new Database(c);
+  const user = await database.getUser(payload.email as string);
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
   // Issue a longer-lived session token
   const sessionToken = await sign(
     {
-      email: payload.email,
       purpose: "session",
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
+      ...user,
     },
     c.env.JWT_TOKEN,
   );
 
-  setCookie(c, "session", sessionToken, {
+  setCookie(c, "dashboard_session", sessionToken, {
     httpOnly: true,
-    secure: true,
+    secure: false, //false for dev
     sameSite: "Lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  return c.redirect("/");
+  return c.redirect("/", 301);
 });

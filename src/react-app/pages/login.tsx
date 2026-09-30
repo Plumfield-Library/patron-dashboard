@@ -1,90 +1,90 @@
-import { BookOpenIcon, Mail, XIcon } from "lucide-react"
+import { BookOpenIcon, Mail, XIcon } from "lucide-react";
 
-import { LoginForm } from "@/components/login-form"
-import React, { useEffect, useState } from "react"
-import { Spinner } from "@/components/ui/spinner.tsx"
-import { toast } from "@/components/ui/toast.tsx"
-import { Navigate } from "react-router-dom"
+import { LoginForm } from "@/components/login-form";
+import React, { useEffect, useState } from "react";
+import { Spinner } from "@/components/ui/spinner.tsx";
+import { toast } from "@/components/ui/toast.tsx";
+import { Navigate } from "react-router-dom";
 
 async function handleSubmit(
-  e: React.SubmitEvent,
+  e: React.FormEvent<HTMLFormElement>,
   email: string | undefined,
   setLoading: (state: boolean) => void,
-  setOk: (state: boolean | undefined) => void
+  setOk: (state: boolean | undefined) => void,
 ) {
-  e.preventDefault()
-  setLoading(true)
+  e.preventDefault();
+  setLoading(true);
   if (!email) {
     toast.add({
       type: "error",
       description: "Missing email in request",
-    })
-    return
+    });
+    return;
   }
   try {
     const res = await fetch("/auth/request-link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
-    })
+    });
     if (!res.ok) {
-      const body = await res.json().catch(() => null)
+      const body = await res.json().catch(() => null);
       toast.add({
         type: "error",
         description: body?.message ?? `Login failed (${res.status})`,
-      })
-      setOk(false)
-      return
+      });
+      setOk(false);
+      return;
     }
-    setOk(true)
+    setOk(true);
   } catch (e) {
     toast.add({
       type: "error",
       description:
         e instanceof Error ? e.message : "An unknown error has occurred",
-    })
-    setOk(false)
+    });
+    setOk(false);
   } finally {
-    setLoading(false)
+    setLoading(false);
   }
 }
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
-  const [ok, setOk] = useState<boolean | undefined>()
-  const [checking, setChecking] = useState(true)
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [ok, setOk] = useState<boolean | undefined>();
+  const [checking, setChecking] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function checkLoginState() {
       if (import.meta.env.PROD) {
         try {
-          const res = await fetch("/me")
-          if (!cancelled) setLoggedIn(res.ok)
+          const res = await fetch("/api/me");
+          if (!cancelled) setLoggedIn(res.ok);
         } catch {
-          if (!cancelled) setLoggedIn(false)
+          if (!cancelled) setLoggedIn(false);
         } finally {
-          if (!cancelled) setChecking(false)
+          if (!cancelled) setChecking(false);
         }
       } else {
-        setLoggedIn(false)
-        setChecking(false)
+        setLoggedIn(false);
+        setChecking(false);
       }
     }
 
-    checkLoginState()
+    checkLoginState();
 
     return () => {
-      cancelled = true
-    }
-  }, [])
+      cancelled = true;
+    };
+  }, []);
 
   if (checking) {
-    return null // or a spinner
+    return null; // or a spinner
   }
 
   if (loggedIn) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" replace />;
   }
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
@@ -136,5 +136,5 @@ export default function LoginPage() {
         />
       </div>
     </div>
-  )
+  );
 }

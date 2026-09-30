@@ -1,67 +1,69 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
-} from "react"
-
-interface User {
-  email: string
-  name: string
-  membership_status: string
-  stripe_id: string
-  classes: boolean
-}
+} from "react";
+import { hc } from "hono/client";
+import type { ApiMe } from "../../worker/api.ts";
+import type { User } from "../../types";
 
 interface AuthContextValue {
-  user: User | null
-  loading: boolean
+  user: User | null;
+  loading: boolean;
+  refetch: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const client = hc<ApiMe>("http://localhost:5173/api/");
 
+  const fetchUser = useCallback(async () => {
+    try {
+      const clientResp = await client.me.$get();
+      // const res = await fetch("/api/me", { credentials: "include" });
+      // setUser(res.ok ? await res.json() : null);
+      if (clientResp.status == 200) {
+        const body = await clientResp.json();
+        setUser(body);
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [client.me]);
   useEffect(() => {
-    // if (import.meta.env.DEV) {
-    //   setUser({
-    //     email: "masarikfamilymichael@gmail.com",
-    //     name: "Michael Masarik",
-    //     membership_status: "full",
-    //   })
-    //   setLoading(false)
-    //   return
-    // }
-    fetch("/api/me", { credentials: "include" })
-      .then((r) => (r.ok ? (r.json() as Promise<User>) : Promise.reject()))
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [])
+    void fetchUser();
+  }, [fetchUser]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refetch: fetchUser }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
+  const ctx = useContext(AuthContext);
   if (ctx === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return ctx
+  return ctx;
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export function logout() {
   if (import.meta.env.DEV) {
-    window.location.href = "/login"
-    return
+    window.location.href = "/login";
+    return;
   }
-  window.location.href = "/auth/logout"
+  window.location.href = "/auth/logout";
 }
