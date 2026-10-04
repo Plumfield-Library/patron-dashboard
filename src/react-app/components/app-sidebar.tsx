@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={data.user} />
       </SidebarHeader>
       <SidebarContent>
-        <Branches items={data.branches} />
+        <Branches />
         <Classes />
         <Invoices />
       </SidebarContent>
