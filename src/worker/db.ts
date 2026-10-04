@@ -4,7 +4,9 @@ import { connect } from "@tursodatabase/serverless";
 
 export class Database {
   #conn;
-  constructor(c: Context<{ Bindings: Bindings }>) {
+  constructor(
+    c: Context<{ Bindings: Bindings; Variables: { jwtPayload: User } }>,
+  ) {
     this.#conn = connect({ url: c.env.TURSO_URL, authToken: c.env.TURSO_KEY });
   }
   async getUser(email: string): Promise<User | null> {

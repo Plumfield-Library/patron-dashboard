@@ -5,9 +5,10 @@ import {
   Bindings,
   User,
   SessionCookie,
+  InvoiceResponseModel,
 } from "../types";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { get_all_invoices, InvoiceResponseModel } from "./stripe.ts";
+import { get_all_invoices } from "./stripe.ts";
 import { chooseCookie } from "./utils.ts";
 import Stripe from "stripe";
 
@@ -44,6 +45,7 @@ const me = createRoute({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const apiMe = api.openapi(me, (c) => {
   return c.json(
     {
@@ -67,11 +69,14 @@ const stripe = createRoute({
   },
 });
 
-api.openapi(stripe, async (c) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const StripeRouteType = api.openapi(stripe, async (c) => {
   const client = new Stripe(c.env.STRIPE_KEY);
   const user = c.get("jwtPayload");
   const stripe_id = user.stripe_id;
   const invoices = await get_all_invoices(client, stripe_id!);
   return c.json(invoices ?? []);
 });
+
+export type StripeAPI = typeof StripeRouteType;
 export type ApiMe = typeof apiMe;

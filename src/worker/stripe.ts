@@ -1,14 +1,5 @@
 import type Stripe from "stripe";
-import { z } from "@hono/zod-openapi";
-
-export const InvoiceModel = z.object({
-  invoice_id: z.string(),
-  url: z.string().nullable(),
-  date: z.string().nullable(),
-  total: z.number(),
-});
-export const InvoiceResponseModel = z.array(InvoiceModel);
-type Invoice = z.infer<typeof InvoiceModel>;
+import { Invoice } from "../types";
 
 export async function get_all_invoices(
   client: Stripe,
@@ -17,15 +8,17 @@ export async function get_all_invoices(
   const invoices = await client.invoices.list({
     customer: stripe_id,
   });
+  console.log("request for: ", stripe_id);
   if (invoices.data.length == 0) {
     return null;
   }
   return invoices.data
-    .filter((inv) => (inv.status = "open"))
+    .filter((inv) => ["open", "paid"].includes(inv.status ?? ""))
     .map((inv) => ({
-      invoice_id: inv.id,
+      invoice_id: inv.number ?? "",
       url: inv.hosted_invoice_url ?? "",
-      date: inv.due_date ? new Date(inv.due_date * 1000).toISOString() : null,
+      date: inv.due_date ? new Date(inv.due_date * 1000).toISOString() : "",
       total: inv.total / 100,
+      status: inv.status || "open",
     }));
 }

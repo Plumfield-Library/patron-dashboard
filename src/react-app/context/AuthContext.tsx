@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const client = hc<ApiMe>("http://localhost:5173/api/");
+  const client = hc<ApiMe>("/api/");
 
   const fetchUser = useCallback(async () => {
     try {
@@ -60,10 +60,9 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 // eslint-disable-next-line react-refresh/only-export-components
-export function logout() {
-  if (import.meta.env.DEV) {
-    window.location.href = "/login";
-    return;
-  }
-  window.location.href = "/auth/logout";
+export async function logout() {
+  await fetch("/auth/logout", {
+    method: "POST",
+  });
+  window.location.href = "/login";
 }

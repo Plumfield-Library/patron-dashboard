@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import Stripe from "stripe";
 
 const MembershipStatus = z.enum(["active", "inactive", "on_hold"]);
 const Roles = z.enum(["user", "admin"]);
@@ -46,4 +47,14 @@ export type Bindings = {
   STRIPE_KEY: string;
   TURSO_URL: string;
   TURSO_KEY: string;
+  SECURE: string;
 };
+export const InvoiceModel = z.object({
+  invoice_id: z.string(),
+  url: z.string().nullable(),
+  date: z.string(),
+  total: z.number(),
+  status: z.custom<Stripe.Invoice.Status>(),
+});
+export const InvoiceResponseModel = z.array(InvoiceModel);
+export type Invoice = z.infer<typeof InvoiceModel>;

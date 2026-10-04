@@ -57,18 +57,13 @@ export default function LoginPage() {
     let cancelled = false;
 
     async function checkLoginState() {
-      if (import.meta.env.PROD) {
-        try {
-          const res = await fetch("/api/me");
-          if (!cancelled) setLoggedIn(res.ok);
-        } catch {
-          if (!cancelled) setLoggedIn(false);
-        } finally {
-          if (!cancelled) setChecking(false);
-        }
-      } else {
-        setLoggedIn(false);
-        setChecking(false);
+      try {
+        const res = await fetch("/api/me");
+        if (!cancelled) setLoggedIn(res.ok);
+      } catch {
+        if (!cancelled) setLoggedIn(false);
+      } finally {
+        if (!cancelled) setChecking(false);
       }
     }
 
