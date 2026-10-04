@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { setCookie } from "hono/cookie";
+import { setCookie, deleteCookie } from "hono/cookie";
 import { sign, verify } from "hono/jwt";
 import { WorkerMailer } from "worker-mailer";
 import {
@@ -7,11 +7,15 @@ import {
   ErrorSchema,
   GoodRequestSchema,
   RequestSchema,
+  User,
   VerifyQuerySchema,
 } from "../types";
 import { Database } from "./db.ts";
 
-export const auth = new OpenAPIHono<{ Bindings: Bindings }>();
+export const auth = new OpenAPIHono<{
+  Bindings: Bindings;
+  Variables: { jwtPayload: User };
+}>();
 
 const requestLink = createRoute({
   method: "post",
@@ -152,11 +156,33 @@ auth.openapi(VerifyToken, async (c) => {
 
   setCookie(c, "dashboard_session", sessionToken, {
     httpOnly: true,
-    secure: false, //false for dev
+    secure: c.env.SECURE == "true", //false for dev
     sameSite: "Lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
   return c.redirect("/", 301);
+});
+
+const Logout = createRoute({
+  path: "/logout",
+  method: "post",
+  responses: {
+    200: {
+      description: "Redirects to the login page",
+      content: {
+        "application/json": {
+          schema: GoodRequestSchema,
+        },
+      },
+    },
+  },
+});
+auth.openapi(Logout, (c) => {
+  deleteCookie(c, "dashboard_session", {
+    path: "/",
+    secure: c.env.SECURE == "true",
+  });
+  return c.json({ ok: true }, 200);
 });

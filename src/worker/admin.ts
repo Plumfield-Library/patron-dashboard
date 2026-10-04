@@ -3,6 +3,7 @@ import { Bindings, ErrorSchema, GoodRequestSchema, User } from "../types";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { chooseCookie } from "./utils.ts";
 import { sign } from "hono/jwt";
+import { Database } from "./db.ts";
 
 export const admin = new OpenAPIHono<{
   Bindings: Bindings;
@@ -42,25 +43,28 @@ const imp = createRoute({
 admin.openapi(imp, async (c) => {
   const token = chooseCookie(c);
   const email = c.req.valid("json").email;
+
   if (!token || c.get("jwtPayload").role != "admin") {
     return c.json({ error: "Unauthorized" }, 401);
   }
+  const db = new Database(c);
+  const payload = await db.getUser(email);
 
   const sessionToken = await sign(
     {
-      email: email,
+      ...payload,
       admin: true,
       purpose: "session",
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // 7 days
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day
     },
     c.env.JWT_TOKEN,
   );
   setCookie(c, "imp_session", sessionToken, {
     httpOnly: true,
-    secure: true,
+    secure: c.env.SECURE == "true",
     sameSite: "Lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24,
   });
 
   return c.json({ ok: true }, 200);
@@ -69,7 +73,7 @@ admin.openapi(imp, async (c) => {
 admin.post("/exit", (c) => {
   deleteCookie(c, "imp_session", {
     path: "/",
-    secure: true,
+    secure: false,
   });
   return c.json({ ok: true }, 200);
 });

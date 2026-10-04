@@ -13,7 +13,8 @@
     "esModuleInterop": true,
     "target": "ES2020",
     "moduleResolution": "nodenext",
-    "module": "nodenext"
+    "module": "nodenext",
+    "allowImportingTsExtensions": true
   },
   "include": ["enviroment.d.ts"]
 }
