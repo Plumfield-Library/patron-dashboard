@@ -15,7 +15,7 @@ export function Branches() {
       <SidebarGroupLabel>Branches</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton onClick={() => nav("/appointment")}>
+          <SidebarMenuButton onClick={() => nav("/appointments")}>
             <Calendar />
             <span>Main Appointment</span>
           </SidebarMenuButton>

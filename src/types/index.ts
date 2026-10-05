@@ -48,6 +48,7 @@ export type Bindings = {
   TURSO_URL: string;
   TURSO_KEY: string;
   SECURE: string;
+  NOTION_KEY: string;
 };
 export const InvoiceModel = z.object({
   invoice_id: z.string(),
@@ -58,3 +59,16 @@ export const InvoiceModel = z.object({
 });
 export const InvoiceResponseModel = z.array(InvoiceModel);
 export type Invoice = z.infer<typeof InvoiceModel>;
+
+export const ClassesModel = z.object({
+  title: z.string(),
+  student: z.string(),
+  date: z.string(),
+  location: z.string(),
+  type: z.string(),
+  id: z.string(),
+});
+
+export const ClassesResponse = z.array(ClassesModel);
+
+export type Classes = z.infer<typeof ClassesModel>;

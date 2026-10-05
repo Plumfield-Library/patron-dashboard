@@ -1,22 +1,31 @@
-import { useInvoices } from "@/context/InvoiceContext.tsx";
-import { Spinner } from "@/components/ui/spinner.tsx";
+import { refreshInvoices, useInvoices } from "@/context/InvoiceContext.tsx";
 import { SkeletonTable } from "@/components/Loading.tsx";
 
 import { Invoices } from "@/components/Invoices.tsx";
+import { useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
+import { RefreshCw } from "lucide-react";
 
 export function OpenInvoices() {
-  const { loading, error, data } = useInvoices();
+  const [refreshing, setRefreshing] = useState(false);
+  const { isPending, error, data = [] } = useInvoices();
 
-  if (loading) {
-    return <Spinner />; // TODO: later add a good loading state
-  }
   if (error) {
-    return <p>{error}</p>;
+    return <p>{error.message}</p>;
   }
   return (
     <div>
-      <h1>Open Invoices</h1>
-      {loading ? (
+      <div className="flex justify-between items-center">
+        <span className="text-xl">Open Invoices</span>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refreshInvoices(setRefreshing)}
+        >
+          <RefreshCw />
+        </Button>
+      </div>
+      {isPending || refreshing ? (
         <SkeletonTable />
       ) : (
         <Invoices data={data} filters={{ open: true, paid: false }} />
@@ -26,18 +35,25 @@ export function OpenInvoices() {
 }
 
 export function AllInvoices() {
-  const { loading, error, data } = useInvoices();
+  const [refreshing, setRefreshing] = useState(false);
+  const { isPending, error, data } = useInvoices();
 
-  if (loading) {
-    return <Spinner />; // TODO: later add a good loading state
-  }
   if (error) {
-    return <p>{error}</p>;
+    return <p>{error.message}</p>;
   }
   return (
     <div>
-      <h1>Open Invoices</h1>
-      {loading ? (
+      <div className="flex justify-between items-center">
+        <span className="text-xl">All Invoices</span>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => refreshInvoices(setRefreshing)}
+        >
+          <RefreshCw />
+        </Button>
+      </div>
+      {isPending || refreshing ? (
         <SkeletonTable />
       ) : (
         <Invoices data={data} filters={{ open: true, paid: true }} />

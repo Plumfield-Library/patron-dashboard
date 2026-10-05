@@ -6,11 +6,13 @@ import {
   User,
   SessionCookie,
   InvoiceResponseModel,
+  ClassesResponse,
 } from "../types";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { get_all_invoices } from "./stripe.ts";
 import { chooseCookie } from "./utils.ts";
 import Stripe from "stripe";
+import { Notion } from "./notion.ts";
 
 export const api = new OpenAPIHono<{
   Bindings: Bindings;
@@ -76,6 +78,26 @@ const StripeRouteType = api.openapi(stripe, async (c) => {
   const stripe_id = user.stripe_id;
   const invoices = await get_all_invoices(client, stripe_id!);
   return c.json(invoices ?? []);
+});
+
+const notion = createRoute({
+  method: "get",
+  path: "/notion",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: ClassesResponse,
+        },
+      },
+    },
+  },
+});
+
+api.openapi(notion, async (c) => {
+  const client = new Notion(c);
+  const classes = await client.getAllClasses(c.get("jwtPayload"));
+  return c.json(classes, 200);
 });
 
 export type StripeAPI = typeof StripeRouteType;
