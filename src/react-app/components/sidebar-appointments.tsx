@@ -12,7 +12,7 @@ export function Branches() {
   const nav = useNavigate();
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Branches</SidebarGroupLabel>
+      <SidebarGroupLabel>Appointments</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton onClick={() => nav("/appointments")}>
@@ -21,9 +21,7 @@ export function Branches() {
           </SidebarMenuButton>
         </SidebarMenuItem>
         <SidebarMenuItem>
-          <SidebarMenuButton
-            render={<a href={"mailto:shirebranch@gmail.com"} />}
-          >
+          <SidebarMenuButton render={<a href={"sms:+19206640805"} />}>
             <Calendar />
             <span>Shire Appointment</span>
           </SidebarMenuButton>

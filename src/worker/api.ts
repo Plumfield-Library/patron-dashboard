@@ -7,6 +7,7 @@ import {
   SessionCookie,
   InvoiceResponseModel,
   ClassesResponse,
+  ILLResponseModel,
 } from "../types";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { get_all_invoices } from "./stripe.ts";
@@ -78,8 +79,7 @@ const stripe = createRoute({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const StripeRouteType = api.openapi(stripe, async (c) => {
+api.openapi(stripe, async (c) => {
   const client = new Stripe(c.env.STRIPE_KEY);
   const user = c.get("jwtPayload");
   const stripe_id = user.stripe_id;
@@ -87,9 +87,9 @@ const StripeRouteType = api.openapi(stripe, async (c) => {
   return c.json(invoices ?? []);
 });
 
-const notion = createRoute({
+const nClasses = createRoute({
   method: "get",
-  path: "/notion",
+  path: "/classes",
   responses: {
     200: {
       content: {
@@ -101,11 +101,29 @@ const notion = createRoute({
   },
 });
 
-api.openapi(notion, async (c) => {
+api.openapi(nClasses, async (c) => {
   const client = new Notion(c);
   const classes = await client.getAllClasses(c.get("jwtPayload"));
   return c.json(classes, 200);
 });
 
-export type StripeAPI = typeof StripeRouteType;
+const nILL = createRoute({
+  method: "get",
+  path: "/ill",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: ILLResponseModel,
+        },
+      },
+    },
+  },
+});
+
+api.openapi(nILL, async (c) => {
+  const client = new Notion(c);
+  const ill = await client.getAllInterLibraryLoan(c.get("jwtPayload"));
+  return c.json(ill, 200);
+});
 export type ApiMe = typeof apiMe;

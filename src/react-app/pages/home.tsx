@@ -15,13 +15,17 @@ import { useState } from "react";
 import { ArrowUpRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { toast } from "@/components/ui/toast.tsx";
-import { FilloutSliderEmbed } from "@fillout/react";
+import { useILL } from "@/context/ILLContext.ts";
+import { ILLTotals } from "@/components/interlibraryloan.tsx";
+import { useNavigate } from "react-router-dom";
 
 export function Home() {
   const { user, loading } = useAuth();
   const { isPending: invLoading, error, data } = useInvoices();
+  const { isPending: illLoading, error: IllError, data: IllData } = useILL();
   const [refreshing, setRefreshing] = useState(false);
-  const [filloutOpen, setFilloutOpen] = useState(false);
+  const router = useNavigate();
+
   if (loading) {
     return <Spinner />; // TODO: later add a good loading state
   }
@@ -39,6 +43,7 @@ export function Home() {
       console.error("Failed to copy text: ", err);
     }
   }
+
   return (
     <div>
       <h1>Hello {user?.name}!</h1>
@@ -126,15 +131,15 @@ export function Home() {
           <CardHeader>
             <CardTitle>Interlibrary Loan</CardTitle>
             <CardAction>
-              <Button onClick={() => setFilloutOpen(true)}>
+              <Button onClick={() => router("/interlibrary-loan")}>
                 Interlibrary Loan
               </Button>
             </CardAction>
           </CardHeader>
           <CardContent>
             <p>
-              To interlibrary loan books, fill out the once per book you would
-              like to interlibrary loan. For more information,{" "}
+              To interlibrary loan books, fill out the form once per book you
+              would like to interlibrary loan. For more information,{" "}
               <a
                 className="text-primary"
                 href="https://plumfieldlibrary.com/library-policies/interlibrary-loan"
@@ -142,13 +147,11 @@ export function Home() {
                 read this article.
               </a>
             </p>
-
-            <FilloutSliderEmbed
-              isOpen={filloutOpen}
-              onClose={() => setFilloutOpen(false)}
-              filloutId={"ugpB1EGK5Bus"}
-              parameters={{ email: user?.email, name: user?.name }}
-            />
+            {illLoading || IllError ? (
+              <Spinner></Spinner>
+            ) : (
+              <ILLTotals data={IllData} />
+            )}
           </CardContent>
         </Card>
       </div>

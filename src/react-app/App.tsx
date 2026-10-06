@@ -6,6 +6,7 @@ import { OpenInvoices, AllInvoices } from "@/pages/invoices.tsx";
 import { Appointments } from "@/pages/appointments.tsx";
 import { Register } from "@/pages/register.tsx";
 import { ClassPage } from "@/pages/classes.tsx";
+import { ILL } from "@/pages/ill.tsx";
 // import Verify from "@/pages/verify";
 
 export function App() {
@@ -22,6 +23,7 @@ export function App() {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/register" element={<Register />} />
           <Route path="/my-classes" element={<ClassPage />}></Route>
+          <Route path="/interlibrary-loan" element={<ILL />} />
         </Route>
       </Routes>
     </BrowserRouter>

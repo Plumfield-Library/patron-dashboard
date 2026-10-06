@@ -1,6 +1,6 @@
 import { Client, isFullPage } from "@notionhq/client";
 import { Context } from "hono";
-import { Bindings, Classes, User } from "../types";
+import { Bindings, Classes, IllTitle, User } from "../types";
 
 export class Notion {
   #client;
@@ -121,6 +121,76 @@ export class Notion {
         });
       });
       return classes;
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+  async getAllInterLibraryLoan(user: User) {
+    try {
+      const resp = await this.#client.dataSources.query({
+        data_source_id: "6d8ab6d5-2427-4aed-a5c1-bdfec13a9ae9",
+        filter: {
+          property: "Email",
+          email: {
+            equals: user.email,
+          },
+        },
+        filter_properties: ["Title", "Location", "Status"],
+      });
+      const titles: IllTitle[] = [];
+      resp.results.forEach((ill) => {
+        if (!isFullPage(ill)) {
+          console.error(`Title: ${ill.id} is invalid`);
+          console.error(JSON.stringify(ill));
+          return;
+        }
+
+        const properties = ill.properties;
+        if (properties["Title"].type != "title") {
+          console.error("Title is invalid for", ill.id);
+          return;
+        }
+        if (properties["Location"].type != "select") {
+          console.error("Location is invalid for", ill.id);
+          return;
+        }
+        if (properties["Status"].type != "status") {
+          console.error("Status is invalid for", ill.id);
+          return;
+        }
+
+        let status = properties["Status"].status?.name;
+        let location = properties["Location"].select?.name;
+        const title = properties["Title"].title[0].plain_text;
+        const inProcess = ["Books Pulled", "Prepared", "Checked Out"];
+        const patronStatus = [
+          "Request Received",
+          "In Process",
+          "Delivered",
+          "Advanced Hold",
+        ];
+        if (
+          !status ||
+          (!inProcess.includes(status) && !patronStatus.includes(status))
+        ) {
+          status = "Request Received";
+        } else if (inProcess.includes(status)) {
+          status = "In Process";
+        } else if (status == "Delivered") {
+          status = "Available";
+        }
+        if (!location || !["Main", "Shire"].includes(location)) {
+          location = "Main";
+        }
+        titles.push({
+          title,
+          status,
+          location,
+        });
+      });
+
+      return titles;
     } catch (e) {
       console.error(e);
       return [];

@@ -75,3 +75,10 @@ export type Classes = z.infer<typeof ClassesModel>;
 export const GoodTokenSchema = z.object({
   token: z.string(),
 });
+export const ILLTitleModel = z.object({
+  title: z.string(),
+  status: z.string(),
+  location: z.string(),
+});
+export const ILLResponseModel = z.array(ILLTitleModel);
+export type IllTitle = z.infer<typeof ILLTitleModel>;

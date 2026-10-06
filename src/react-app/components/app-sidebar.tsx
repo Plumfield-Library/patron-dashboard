@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Branches } from "@/components/sidebar-branches.tsx";
+import { Branches } from "@/components/sidebar-appointments.tsx";
 import { NavUser } from "@/components/sidebar-user.tsx";
 import {
   Sidebar,
@@ -13,10 +13,12 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Calendar, LogOut } from "lucide-react";
+import { Calendar, Home, LogOut } from "lucide-react";
 import { logout, useAuth } from "@/context/AuthContext.tsx";
 import { Classes } from "@/components/sidebar-classes.tsx";
 import { Invoices } from "@/components/sidebar-invoices.tsx";
+import { SidebarIll } from "@/components/sidebar-ill.tsx";
+import { useNavigate } from "react-router-dom";
 
 // This is sample data.
 
@@ -41,6 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
   };
+  const nav = useNavigate();
   return (
     <Sidebar collapsible="offcanvas" {...props} variant="inset">
       <SidebarHeader>
@@ -50,8 +53,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Branches />
         <Classes />
         <Invoices />
+        <SidebarIll />
       </SidebarContent>
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuButton onClick={() => nav("/")}>
+            <Home />
+            <span>Home</span>
+          </SidebarMenuButton>
+        </SidebarMenu>
         <SidebarMenu>
           <SidebarMenuButton onClick={async () => await logout()}>
             <LogOut />

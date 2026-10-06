@@ -9,14 +9,14 @@ import { useState } from "react";
 import { SkeletonTable } from "@/components/Loading.tsx";
 
 async function getNotionData() {
-  const resp = await fetch("/api/notion");
+  const resp = await fetch("/api/classes");
   return (await resp.json()) as Classes[];
 }
 
 async function refresh(refreshing: (state: boolean) => void) {
   refreshing(true);
   await queryClient
-    .invalidateQueries({ queryKey: ["notion"] })
+    .invalidateQueries({ queryKey: ["classes"] })
     .finally(() => refreshing(false));
 }
 
@@ -24,7 +24,7 @@ export function ClassPage() {
   const { user, loading } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const { isPending, data, error } = useQuery({
-    queryKey: ["notion"],
+    queryKey: ["classes"],
     queryFn: getNotionData,
   });
 
