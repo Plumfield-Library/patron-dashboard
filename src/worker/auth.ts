@@ -7,6 +7,7 @@ import {
   ErrorSchema,
   GoodRequestSchema,
   RequestSchema,
+  GoodTokenSchema,
   User,
   VerifyQuerySchema,
 } from "../types";
@@ -109,7 +110,7 @@ const VerifyToken = createRoute({
         },
       },
     },
-    301: {
+    302: {
       description: "Redirects to the dashboard",
       headers: {
         Location: {
@@ -120,11 +121,19 @@ const VerifyToken = createRoute({
         },
       },
     },
+    200: {
+      content: {
+        "application/json": {
+          schema: GoodTokenSchema,
+        },
+      },
+    },
   },
 });
 
 auth.openapi(VerifyToken, async (c) => {
   const token = c.req.query("token");
+  const UA = c.req.header("X-Client");
   if (!token) return c.json({ error: "missing token" }, 400);
 
   let payload;
@@ -153,6 +162,9 @@ auth.openapi(VerifyToken, async (c) => {
     },
     c.env.JWT_TOKEN,
   );
+  if (UA == "react-native") {
+    return c.json({ token: sessionToken }, 200);
+  }
 
   setCookie(c, "dashboard_session", sessionToken, {
     httpOnly: true,
@@ -162,7 +174,7 @@ auth.openapi(VerifyToken, async (c) => {
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  return c.redirect("/", 301);
+  return c.redirect("/", 302);
 });
 
 const Logout = createRoute({

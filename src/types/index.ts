@@ -72,3 +72,6 @@ export const ClassesModel = z.object({
 export const ClassesResponse = z.array(ClassesModel);
 
 export type Classes = z.infer<typeof ClassesModel>;
+export const GoodTokenSchema = z.object({
+  token: z.string(),
+});

@@ -19,19 +19,26 @@ export const api = new OpenAPIHono<{
   Variables: { jwtPayload: User };
 }>();
 
+const ALLOWED_PURPOSES = new Set(["session"]); // use whatever your imp token's purpose is
+
 api.use("/*", async (c, next) => {
-  const token = chooseCookie(c); // returns the correct session
+  const token = chooseCookie(c);
   if (!token) return c.json({ error: "unauthorized" }, 401);
+
+  let payload: SessionCookie;
   try {
-    const payload = await verify(token, c.env.JWT_TOKEN);
-    c.set("jwtPayload", payload as SessionCookie);
-    await next();
-  } catch (e) {
-    console.error(e);
+    payload = (await verify(token, c.env.JWT_TOKEN)) as SessionCookie;
+  } catch {
     return c.json({ error: "unauthorized" }, 401);
   }
-});
 
+  if (!ALLOWED_PURPOSES.has(payload.purpose)) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+
+  c.set("jwtPayload", payload);
+  await next();
+});
 const me = createRoute({
   method: "get",
   path: "/me",

@@ -8,6 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card.tsx";
 import { refreshInvoices, useInvoices } from "@/context/InvoiceContext.tsx";
 import { useState } from "react";
@@ -65,7 +66,13 @@ export function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-2 pt-4 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Libib Credentials</CardTitle>
+            <CardTitle>Book Catalog</CardTitle>
+            <CardDescription className="mt-2">
+              This is the place where you can place holds, view your checkouts,
+              and search the library card catalog. <strong>Reminder: </strong>
+              there are no renewals, you renewal was built into your 45 day
+              checkout
+            </CardDescription>
             <CardAction>
               <Button
                 render={
@@ -147,22 +154,39 @@ export function Home() {
       </div>
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Library Locations</CardTitle>
+          <CardTitle>Appointments</CardTitle>
+          <CardDescription className={"flex flex-col"}>
+            <strong>Regarding Main:</strong>
+            <span>
+              The Main library is open Thursdays from 12:00 - 5:30 and the first
+              and third Tuesdays from 1:00 to 2:30. On Tuesdays, drop-ins are
+              welcome. To pickup holds, 48 hours notice is required
+            </span>
+            <br />
+            <strong>Regarding Shire:</strong>
+            <span>Text or Call Morgan to schedule an appointment!</span>
+          </CardDescription>
         </CardHeader>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-          <div className="flex flex-col">
-            <span className="text-primary font-bold">Main Library</span>
-            <a href="https://maps.app.goo.gl/Yz1Q1QpiEsQ4GdyXA">
-              5735 Aspen Ct, Denmark, WI 54208
-            </a>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <span className="text-primary font-bold">Main Library</span>
+              <a href="https://maps.app.goo.gl/Yz1Q1QpiEsQ4GdyXA">
+                5735 Aspen Ct, Denmark, WI 54208
+              </a>
+              <span className="text-primary">
+                plumfieldlivinglibrary@gmail.com
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-primary font-bold">Shire Branch</span>
+              <a href="https://maps.app.goo.gl/ZXhpdzzYo4b7Qheh7">
+                8924 S Chase Rd, Pulaski, WI 54162
+              </a>
+              <span className="text-primary">(920) 664-0805</span>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-primary font-bold">Shire Branch</span>
-            <a href="https://maps.app.goo.gl/ZXhpdzzYo4b7Qheh7">
-              8924 S Chase Rd, Pulaski, WI 54162
-            </a>
-          </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   );
