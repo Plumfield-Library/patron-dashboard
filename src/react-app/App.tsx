@@ -10,7 +10,6 @@ import { ILL } from "@/pages/ill.tsx";
 // import Verify from "@/pages/verify";
 
 export function App() {
-  // TODO: finish adding routes and login element
   return (
     <BrowserRouter>
       <Routes>

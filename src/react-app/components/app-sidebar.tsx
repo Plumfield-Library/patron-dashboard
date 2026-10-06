@@ -38,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         name: "Shire Appointment",
-        url: "sms:+19206640805", //TODO replace with phone if needed
+        url: "sms:+19206640805",
         icon: <Calendar />,
       },
     ],

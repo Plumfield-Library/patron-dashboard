@@ -47,11 +47,16 @@ auth.openapi(requestLink, async (c) => {
   const { email } = await c.req.json();
   console.log("Login request for the following!");
   console.log(email);
-  // TODO: check email against your allowed patrons/users list here
-  // const isKnownUser = await checkUserExists(email, c.env)
-  // if (!isKnownUser) {
-  //     // Return 200 anyway — don't leak which emails are registered
-  //     return c.json({ ok: true })
+  const database = new Database(c);
+  const user = await database.getUser(email as string);
+  if (!user) {
+    console.error("Invalid email:", email as string);
+    return c.json({ ok: true }, 200);
+  }
+  if (user.membership_status != "active") {
+    console.error("User is not active: ", email as string);
+    return c.json({ ok: true }, 200);
+  }
 
   const magicToken = await sign(
     {
@@ -150,7 +155,7 @@ auth.openapi(VerifyToken, async (c) => {
 
   const database = new Database(c);
   const user = await database.getUser(payload.email as string);
-  if (!user) {
+  if (!user || user.membership_status != "active") {
     return c.json({ error: "Unauthorized" }, 401);
   }
   // Issue a longer-lived session token

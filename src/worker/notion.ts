@@ -23,7 +23,7 @@ export class Notion {
             {
               property: "Email",
               email: {
-                equals: "apopp10@alumni.uwosh.edu",
+                equals: user.email,
               },
             },
             {
