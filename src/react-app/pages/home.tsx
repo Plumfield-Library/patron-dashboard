@@ -148,7 +148,7 @@ export function Home() {
               </a>
             </p>
             {illLoading || IllError ? (
-              <Spinner></Spinner>
+              <SkeletonTable />
             ) : (
               <ILLTotals data={IllData} />
             )}

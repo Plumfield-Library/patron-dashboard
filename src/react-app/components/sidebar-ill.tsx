@@ -23,13 +23,13 @@ export function SidebarIll() {
           <SidebarMenuItem key="classes">
             <SidebarMenuButton onClick={() => nav("/interlibrary-loan")}>
               <List />
-              <span>My Requests</span>
+              <span>My Loan Requests</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={() => setOpen(true)}>
               <ShoppingCartPlus />
-              Request Book
+              Request a Book
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

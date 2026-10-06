@@ -12,7 +12,7 @@ import { queryClient } from "@/lib/queries.ts";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <ThemeProvider defaultTheme="system" storageKey="patron-dashboard-theme">
         <AuthProvider>
           <App />
           <Toaster />
