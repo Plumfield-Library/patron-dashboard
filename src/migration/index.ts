@@ -1,4 +1,3 @@
-import Stripe from "stripe";
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { connect } from "@tursodatabase/serverless";
@@ -10,8 +9,9 @@ dotenv.config({ path: path.resolve(import.meta.dirname, "../../.dev.vars") });
 async function main() {
   const apiKey = process.env.TURSO_KEY;
   const apiURL = process.env.TURSO_URL;
-  const stripeKey = process.env.STRIPE_KEY;
-  const client = new Stripe(stripeKey);
+  if (!apiKey || !apiURL) {
+    throw new Error("TURSO_KEY and TURSO_URL must be configured");
+  }
   const conn = connect({
     authToken: apiKey,
     url: apiURL,

@@ -13,8 +13,9 @@ import { useAuth } from "@/context/AuthContext.tsx";
 
 export function SidebarIll() {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const { data: user } = useAuth();
   const nav = useNavigate();
+
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">

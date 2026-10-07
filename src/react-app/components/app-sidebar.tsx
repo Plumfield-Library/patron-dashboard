@@ -23,12 +23,19 @@ import { useNavigate } from "react-router-dom";
 // This is sample data.
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuth();
+  const { data: user, isPending, error } = useAuth();
+  const nav = useNavigate();
+  if (error) {
+    throw new Error("User is not authenticated: " + error.message);
+  }
+  if (isPending) {
+    return <></>;
+  }
 
   const data = {
     user: {
-      name: user?.name ?? "",
-      email: user?.email ?? "",
+      name: user.name,
+      email: user.email,
     },
     branches: [
       {
@@ -43,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
   };
-  const nav = useNavigate();
+
   return (
     <Sidebar collapsible="offcanvas" {...props} variant="inset">
       <SidebarHeader>

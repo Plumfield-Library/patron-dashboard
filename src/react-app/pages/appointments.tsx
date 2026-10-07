@@ -5,16 +5,19 @@ import { Button } from "@/components/ui/button.tsx";
 import { TriangleAlert } from "lucide-react";
 
 export function Appointments() {
-  const { user, loading } = useAuth();
+  const { data: user, isPending: loading, error } = useAuth();
 
   if (loading) {
     return <Spinner />;
   }
+  if (error) {
+    return <p>{error.message}</p>;
+  }
 
-  if (!user?.visit) {
+  if (!user.visit) {
     const subject = encodeURIComponent("Library visit scheduling");
     const body = encodeURIComponent(
-      `Hi Plumfield team,\n\nI noticed visit scheduling isn't available on my account (${user?.name ?? ""}). Could we connect about it?\n\nThanks!`,
+      `Hi Plumfield team,\n\nI noticed visit scheduling isn't available on my account (${user.name ?? ""}). Could we connect about it?\n\nThanks!`,
     );
 
     return (
@@ -44,8 +47,8 @@ export function Appointments() {
       filloutId={"3Sc1rLhCbRus"}
       dynamicResize
       parameters={{
-        email: user.email,
-        name: user.name,
+        email: user?.email,
+        name: user?.name,
       }}
     />
   );

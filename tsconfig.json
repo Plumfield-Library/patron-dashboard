@@ -1,21 +1,26 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.worker.json" }
-  ],
   "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["es2024", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/react-app/*"]
     },
-    "esModuleInterop": true,
-    "target": "ES2020",
-    "moduleResolution": "nodenext",
-    "module": "nodenext",
-    "allowImportingTsExtensions": true,
-    "lib": ["es2024"]
+    "types": ["vite/client", "./worker-configuration.d.ts"]
   },
-  "include": ["enviroment.d.ts"]
+  "include": ["src", "vite.config.ts"]
 }

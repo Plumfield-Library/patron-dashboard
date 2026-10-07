@@ -20,7 +20,7 @@ import { ILLTotals } from "@/components/interlibraryloan.tsx";
 import { useNavigate } from "react-router-dom";
 
 export function Home() {
-  const { user, loading } = useAuth();
+  const { data: user, isPending: loading } = useAuth();
   const { isPending: invLoading, error, data } = useInvoices();
   const { isPending: illLoading, error: IllError, data: IllData } = useILL();
   const [refreshing, setRefreshing] = useState(false);

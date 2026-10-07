@@ -21,7 +21,7 @@ async function refresh(refreshing: (state: boolean) => void) {
 }
 
 export function ClassPage() {
-  const { user, loading } = useAuth();
+  const { data: user, isPending: loading } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const { isPending, data, error } = useQuery({
     queryKey: ["classes"],

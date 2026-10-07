@@ -28,10 +28,17 @@ async function handleSubmit(
       body: JSON.stringify({ email }),
     });
     if (!res.ok) {
-      const body = await res.json().catch(() => null);
+      const body: unknown = await res.json().catch(() => null);
+      const message =
+        typeof body === "object" &&
+        body !== null &&
+        "message" in body &&
+        typeof body.message === "string"
+          ? body.message
+          : `Login failed (${res.status})`;
       toast.add({
         type: "error",
-        description: body?.message ?? `Login failed (${res.status})`,
+        description: message,
       });
       setOk(false);
       return;

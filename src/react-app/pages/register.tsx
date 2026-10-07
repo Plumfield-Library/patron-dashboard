@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { FilloutStandardEmbed } from "@fillout/react";
 
 export function Register() {
-  const { user, loading } = useAuth();
+  const { data: user, isPending: loading } = useAuth();
   if (loading) {
     return <Spinner />;
   }
