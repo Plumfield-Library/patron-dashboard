@@ -57,6 +57,8 @@ const me = createRoute({
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const apiMe = api.openapi(me, (c) => {
+  console.log("Me request for", c.get("jwtPayload").email);
+
   return c.json(
     {
       ...c.get("jwtPayload"),
