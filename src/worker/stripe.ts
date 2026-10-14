@@ -1,24 +1,36 @@
-import type Stripe from "stripe";
+import Stripe from "stripe";
 import { Invoice } from "../types";
 
 export async function get_all_invoices(
   client: Stripe,
   stripe_id: string,
 ): Promise<null | Invoice[]> {
-  const invoices = await client.invoices.list({
-    customer: stripe_id,
-  });
-  console.log("request for: ", stripe_id);
-  if (invoices.data.length == 0) {
+  try {
+    const invoices = await client.invoices.list({
+      customer: stripe_id,
+    });
+
+    console.log("request for: ", stripe_id);
+    if (invoices.data.length == 0) {
+      return null;
+    }
+    return invoices.data
+      .filter((inv) => ["open", "paid"].includes(inv.status ?? ""))
+      .map((inv) => ({
+        invoice_id: inv.number ?? "",
+        url: inv.hosted_invoice_url ?? "",
+        date: inv.due_date ? new Date(inv.due_date * 1000).toISOString() : "",
+        total: inv.total / 100,
+        status: inv.status || "open",
+      }));
+  } catch (e) {
+    console.error(`Unable to fetch invoices for ${stripe_id}`);
+    if (e instanceof Stripe.errors.StripeInvalidRequestError) {
+      console.error(`Error fetching customer ${stripe_id}`);
+      console.error(e?.message);
+    } else {
+      console.error(e);
+    }
     return null;
   }
-  return invoices.data
-    .filter((inv) => ["open", "paid"].includes(inv.status ?? ""))
-    .map((inv) => ({
-      invoice_id: inv.number ?? "",
-      url: inv.hosted_invoice_url ?? "",
-      date: inv.due_date ? new Date(inv.due_date * 1000).toISOString() : "",
-      total: inv.total / 100,
-      status: inv.status || "open",
-    }));
 }
