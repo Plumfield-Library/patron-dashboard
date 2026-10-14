@@ -66,7 +66,8 @@ auth.openapi(requestLink, async (c) => {
     },
     c.env.JWT_TOKEN,
   );
-  const link = `https://dashboard.plumfieldlibrary.com/auth/verify?token=${magicToken}`;
+  const link = `https://dev.dashboard.plumfieldlibrary.com/auth/verify?token=${magicToken}`;
+  const emailText = `Hello!\nTo log into your Patron Dashboard, use this link:\n${link}\n\nIt expires in 15 minutes. If you are note trying to log in, you can safely disregard this email`;
   await WorkerMailer.send(
     {
       // WorkerMailerOptions
@@ -83,10 +84,7 @@ auth.openapi(requestLink, async (c) => {
       from: "plumfieldlivinglibrary@gmail.com",
       to: email,
       subject: "Login to your Patron Dashboard",
-      text: `Hello!
-        You can log into your patron dashboard using the link below (it expires in 15 minutes)
-        
-        ${link}`,
+      text: emailText,
     },
   );
   return c.json({ ok: true }, 200);
